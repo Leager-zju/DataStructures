@@ -52,6 +52,14 @@ class PrefixTrie {
 
   bool existInternal(TrieNode* const node, const std::string_view& str) const;
 
+  /**
+  * @brief 
+  * 
+  * @param[in] node 
+  * @param[in] str 
+  * @return true means that the child has been deleted, so the numOfChilren should decrease
+  * @return false else
+  */
   bool removeInternal(TrieNode*& node, const std::string_view& str);
 
   void append(TrieNode* const node, std::vector<std::string>& vec) const;

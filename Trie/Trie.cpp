@@ -114,10 +114,11 @@ bool PrefixTrie::removeInternal(TrieNode*& node, const std::string_view& str) {
     return true;
   }
 
-  bool res =
-      removeInternal(node->children_[getIndex(str.at(matchLength))],
-                     str.substr(matchLength, str.length() - matchLength));
-  if (!res) return false;
+  if (!removeInternal(node->children_[getIndex(str.at(matchLength))],
+                      str.substr(matchLength, str.length() - matchLength))) {
+    return false;
+  }
+
   node->numOfChilren_--;
   if (node->isLeaf() && !node->isEndOfString_) {
     delete node;

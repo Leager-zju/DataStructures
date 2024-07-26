@@ -6,6 +6,11 @@
 
 void printTree(PrefixTrie& tree) {
   auto&& vec = tree.toVector();
+  if (vec.empty()) {
+    std::cout << "EMPTY TRIE!" << std::endl;
+    return;
+  }
+
   for (auto&& str : vec) {
     std::cout << str << '\n';
   }
@@ -34,6 +39,6 @@ int main() {
 
   assert(tree.empty());
 
-  std::cout << "test success" << std::endl;
+  std::cout << "\n\ntest success" << std::endl;
   return 0;
 }
