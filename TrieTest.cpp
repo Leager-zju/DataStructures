@@ -18,11 +18,17 @@ int main() {
   std::cout << "==#1==\n";
   printTree(tree);
 
-  tree.remove("abcbc");
+  if (!tree.remove("abcbc")) {
+    std::cerr << "remove 'abcbc' failed" << std::endl;
+    exit(-1);
+  };
   std::cout << "==#2==\n";
   printTree(tree);
 
-  tree.remove("abc");
+  if (!tree.remove("abc")) {
+    std::cerr << "remove 'abc' failed" << std::endl;
+    exit(-1);
+  };
   std::cout << "==#3==\n";
   printTree(tree);
 
