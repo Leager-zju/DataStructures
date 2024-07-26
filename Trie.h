@@ -20,30 +20,26 @@ class PrefixTrie {
 
  private:
   struct TrieNode {
-    TrieNode() : endOfString_(false) {
+    TrieNode() : isEndOfString_(false), numOfChilren_(0) {
       for (int i = 0; i < CAPITAL_CARACTER_END; i++) {
         children_[i] = nullptr;
       }
     }
     TrieNode(const std::string_view& str)
-        : endOfString_(false), data_(std::move(str)) {
+        : data_(std::move(str)), isEndOfString_(false), numOfChilren_(0) {
       for (int i = 0; i < CAPITAL_CARACTER_END; i++) {
         children_[i] = nullptr;
       }
     }
 
-    inline bool isLeaf() {
-      for (int i = 0; i < CAPITAL_CARACTER_END; i++) {
-        if (children_[i]) return false;
-      }
-      return true;
-    }
+    inline bool isLeaf() { return numOfChilren_ == 0; }
 
     const static int CAPITAL_CARACTER_BEGIN = 26;
     const static int CAPITAL_CARACTER_END = 52;
 
-    bool endOfString_;
     std::string data_;
+    bool isEndOfString_;
+    int numOfChilren_;
     TrieNode* children_[52];
   };
 
@@ -60,7 +56,8 @@ class PrefixTrie {
 
   void append(TrieNode* const node, std::vector<std::string>& vec) const;
 
-  void recursivelyAppend(TrieNode* const node, std::string& str, std::vector<std::string>& vec) const;
+  void recursivelyAppend(TrieNode* const node, std::string& str,
+                         std::vector<std::string>& vec) const;
 
   void destory(TrieNode* node);
 
