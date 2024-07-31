@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.5.0)
+project({{ projectName }}Test VERSION 0.1.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+add_library({{ projectName }} STATIC {{ projectName }}.cpp {{ projectName }}.h)
+
+add_executable({{ projectName }}Test {{ projectName }}Test.cpp {{ projectName }}.cpp {{ projectName }}.h)
+target_compile_options({{ projectName }}Test PUBLIC -Wall -Werror -g)
