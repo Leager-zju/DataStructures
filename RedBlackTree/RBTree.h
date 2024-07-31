@@ -15,15 +15,97 @@ struct comp {
 
 template <class Key, class Value, class Compare = comp<Key>>
 class RBTree {
- public:
-  RBTree() : root_(nullptr), size_(0) {}
-  ~RBTree() { destory(root_); }
-
   enum NodeColor { RED, BLACK, VOID };
+  struct RBTreeNode {
+    friend class RBTree;
+    explicit RBTreeNode(const Key &k, const Value &v)
+        : kv(k, v),
+          color(RED),
+          parent(nullptr),
+          left(nullptr),
+          right(nullptr) {}
+
+    void setColor(NodeColor c) { color = c; }
+    void setParent(RBTreeNode *p) { parent = p; }
+
+    std::pair<Key, Value> kv;
+
+   private:
+    NodeColor color;
+    RBTreeNode *parent;
+    RBTreeNode *left;
+    RBTreeNode *right;
+  };
+
+  class RBTreeIterator {
+   public:
+    RBTreeIterator() : object(nullptr) {}
+
+    explicit RBTreeIterator(RBTreeNode *ptr) : object(ptr) {}
+    RBTreeIterator(const RBTreeIterator &other) : object(other.object) {}
+    RBTreeIterator(RBTreeIterator &&other) : object(other.object) {
+      other.object = nullptr;
+    }
+
+    RBTreeIterator &operator=(const RBTreeIterator &other) {
+      object = other.object;
+      return *this;
+    }
+    RBTreeIterator &operator=(RBTreeIterator &&other) {
+      object = other.object;
+      other.object = nullptr;
+      return *this;
+    }
+    RBTreeIterator &operator=(RBTreeNode *ptr) {
+      object = ptr;
+      return *this;
+    }
+
+    bool operator==(const RBTreeIterator &other) {
+      return object == other.object;
+    }
+    bool operator==(RBTreeNode *ptr) { return object == ptr; }
+
+    std::pair<Key, Value> *operator->() { return &(object->kv); }
+    std::pair<Key, Value> &operator*() { return object->kv; }
+
+    RBTreeIterator &operator++() {
+      object = getSuccessor(object);
+      return *this;
+    }
+    RBTreeIterator operator++(int) {
+      RBTreeIterator tmp = *this;
+      object = getSuccessor(object);
+      return tmp;
+    }
+
+    RBTreeIterator &operator--() {
+      object = getPredecessor(object);
+      return *this;
+    }
+    RBTreeIterator operator--(int) {
+      RBTreeIterator tmp = *this;
+      object = getPredecessor(object);
+      return tmp;
+    }
+
+   private:
+    RBTreeNode *object;
+  };
+
+ public:
+  using iterator = RBTreeIterator;
+
+ public:
+  RBTree() : root_(nullptr), size_(0), beginIter(nullptr), endIter(nullptr) {}
+  ~RBTree() { destory(root_); }
 
   inline size_t size() { return size_; }
 
   inline bool empty() { return size_ == 0; }
+
+  const RBTreeIterator &begin() { return beginIter; }
+  const RBTreeIterator &end() { return endIter; }
 
   /**
    * @brief Insert {key, value} if key doesn't exist, update the value else
@@ -46,7 +128,7 @@ class RBTree {
    */
   const Value &get(const Key &key, const Value &defaultValue) const {
     RBTreeNode *node = getInternal(root_, key);
-    return node ? node->value : defaultValue;
+    return node ? node->kv.second : defaultValue;
   }
 
   /**
@@ -85,26 +167,6 @@ class RBTree {
   }
 
  private:
-  struct RBTreeNode {
-    explicit RBTreeNode(const Key &k, const Value &v)
-        : color(RED),
-          key(k),
-          value(v),
-          parent(nullptr),
-          left(nullptr),
-          right(nullptr) {}
-
-    void setColor(NodeColor c) { color = c; }
-    void setParent(RBTreeNode *p) { parent = p; }
-
-    NodeColor color;
-    Key key;
-    Value value;
-    RBTreeNode *parent;
-    RBTreeNode *left;
-    RBTreeNode *right;
-  };
-
   /**
    * @brief Get the color of tree node, the NIL node will be seemed as BLACK
    *
@@ -121,7 +183,7 @@ class RBTree {
    *
    * @param[in] node
    */
-  void leftRotate(RBTreeNode *&node) {
+  static void leftRotate(RBTreeNode *&node) {
     RBTreeNode *child = node->right;
     child->setParent(node->parent);
 
@@ -142,7 +204,7 @@ class RBTree {
    *
    * @param[in] node
    */
-  void rightRotate(RBTreeNode *&node) {
+  static void rightRotate(RBTreeNode *&node) {
     RBTreeNode *child = node->left;
     child->setParent(node->parent);
 
@@ -158,6 +220,58 @@ class RBTree {
   }
 
   /**
+   * @brief Get the first node with a smaller key
+   *
+   * @param[in] node
+   * @return RBTreeNode*
+   */
+  static RBTreeNode *getPredecessor(RBTreeNode *node) {
+    if (node->left) {
+      return rightMost(node->left);
+    }
+    while (node->parent && node != node->parent->right) {
+      node = node->parent;
+    }
+    return node->parent;
+  }
+
+  /**
+   * @brief Get the first node with a larger key
+   *
+   * @param[in] node
+   * @return RBTreeNode*
+   */
+  static RBTreeNode *getSuccessor(RBTreeNode *node) {
+    if (node->right) {
+      return leftMost(node->right);
+    }
+    while (node->parent && node != node->parent->left) {
+      node = node->parent;
+    }
+    return node->parent;
+  }
+
+  /**
+   * @brief Find the leftmost node
+   *
+   * @param[in] node
+   * @return RBTreeNode*&
+   */
+  static RBTreeNode *&leftMost(RBTreeNode *&node) {
+    return node->left ? leftMost(node->left) : node;
+  }
+
+  /**
+   * @brief Find the rightmost node
+   *
+   * @param[in] node
+   * @return RBTreeNode*&
+   */
+  static RBTreeNode *&rightMost(RBTreeNode *&node) {
+    return node->right ? rightMost(node->right) : node;
+  }
+
+  /**
    * @brief Internal function for upsert node
    *
    * @param[in] node
@@ -167,19 +281,25 @@ class RBTree {
   void upsertInternal(RBTreeNode *&node, const Key &key, const Value &value) {
     if (node == nullptr) {
       node = new RBTreeNode(key, value);
-      size_++;
+      if (++size_ == 1) {
+        beginIter = node;
+      }
       return;
     }
 
-    int compareResult = compareFunc_(key, node->key);
+    int compareResult = compareFunc_(key, node->kv.first);
     if (compareResult == 0) {
-      node->value = value;
+      node->kv.second = value;
     } else if (compareResult < 0) {
       RBTreeNode *&child = node->left;
       RBTreeNode *&sibling = node->right;
 
       upsertInternal(child, key, value);
       child->setParent(node);
+
+      if (beginIter == node) {
+        --beginIter;
+      }
 
       if (getColorByNode(child) == RED) {
         if (getColorByNode(sibling) == BLACK) {
@@ -317,7 +437,7 @@ class RBTree {
       return nullptr;
     }
 
-    int compareResult = compareFunc_(key, node->key);
+    int compareResult = compareFunc_(key, node->kv.first);
     if (compareResult == 0) {
       return node;
     }
@@ -325,26 +445,6 @@ class RBTree {
       return getInternal(node->left, key);
     }
     return getInternal(node->right, key);
-  }
-
-  /**
-   * @brief Find the leftmost node
-   *
-   * @param[in] node
-   * @return RBTreeNode*&
-   */
-  RBTreeNode *&leftMost(RBTreeNode *&node) {
-    return node->left ? leftMost(node->left) : node;
-  }
-
-  /**
-   * @brief Find the rightmost node
-   *
-   * @param[in] node
-   * @return RBTreeNode*&
-   */
-  RBTreeNode *&rightMost(RBTreeNode *&node) {
-    return node->right ? rightMost(node->right) : node;
   }
 
   /**
@@ -360,7 +460,7 @@ class RBTree {
     }
 
     bool toLeft = true;
-    int compareResult = compareFunc_(key, node->key);
+    int compareResult = compareFunc_(key, node->kv.first);
     if (compareResult == 0) {
       RBTreeNode *&swapNode =
           node->left ? rightMost(node->left)
@@ -368,14 +468,17 @@ class RBTree {
       if (node->left == nullptr && node->right == nullptr) {
         // now the node must be leaf node
         NodeColor color = node->color;
+        if (beginIter == node) {
+          ++beginIter;
+        }
         delete node;
         node = nullptr;
         --size_;
         return color;
       }
 
-      std::swap(node->key, swapNode->key);
-      std::swap(node->value, swapNode->value);
+      std::swap(node->kv.first, swapNode->kv.first);
+      std::swap(node->kv.second, swapNode->kv.second);
       if (node->left == nullptr) {
         toLeft = false;
       }
@@ -561,8 +664,8 @@ class RBTree {
 
     printTreeStructure(node->right, depth + 1, '/');
     std::cout << std::string(depth * 4, ' ') << prefix << "--"
-              << colorToString(node->color) << '(' << node->key << ", "
-              << node->value << ')' << endOfColor() << std::endl;
+              << colorToString(node->color) << '(' << node->kv.first << ", "
+              << node->kv.second << ')' << endOfColor() << std::endl;
     printTreeStructure(node->left, depth + 1, '\\');
   }
   /* Only for debug -- return the number of black nodes to the nil node, -1 for
@@ -590,4 +693,7 @@ class RBTree {
   RBTreeNode *root_;
 
   size_t size_;
+
+  RBTreeIterator beginIter;
+  RBTreeIterator endIter;
 };

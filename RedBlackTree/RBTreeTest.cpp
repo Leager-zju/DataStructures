@@ -12,15 +12,23 @@ int main() {
     tree.print();
     std::cout << '\n';
   }
+
   std::cout << "\n## GET ##\n";
   for (int num : nums) {
     std::cout << tree.get(num, -1) << '\n';
   }
+
+  std::cout << "\n## ITERATOR ##\n";
+  for (auto iter = tree.begin(); iter != tree.end(); iter++) {
+    std::cout << iter->second << '\n';
+  }
+
   std::cout << "\n## REMOVE ##\n";
   for (int num : nums) {
     tree.remove(num);
     tree.print();
     std::cout << '\n';
   }
+
   return 0;
 }
