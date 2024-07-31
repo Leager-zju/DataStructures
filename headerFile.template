@@ -1,8 +1,9 @@
 #pragma once
 
 class {{ projectName }} {
-  public:
-    {{ projectName }}();
-    ~{{ projectName }}();
-  private:
+ public:
+  {{ projectName }}();
+  ~{{ projectName }}();
+
+ private:
 };
