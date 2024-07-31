@@ -75,7 +75,8 @@ class RBTree {
 
   /* Only for debug */
   void print() {
-    std::cout << "size: " << size_ << '\n';
+    std::cout << "size: " << size_ << (validate() ? ", Valid\n" : ", Invalid\n")
+              << '\n';
     printTreeStructure(root_, 0, '-');
   }
   /* Only for debug */
