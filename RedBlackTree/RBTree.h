@@ -19,93 +19,93 @@ class RBTree {
   struct RBTreeNode {
     friend class RBTree;
     explicit RBTreeNode(const Key &k, const Value &v)
-        : kv(k, v),
-          color(RED),
-          parent(nullptr),
-          left(nullptr),
-          right(nullptr) {}
+        : kv_(k, v),
+          color_(RED),
+          parent_(nullptr),
+          left_(nullptr),
+          right_(nullptr) {}
 
-    void setColor(NodeColor c) { color = c; }
-    void setParent(RBTreeNode *p) { parent = p; }
+    void setColor(NodeColor c) { color_ = c; }
+    void setParent(RBTreeNode *p) { parent_ = p; }
 
-    std::pair<Key, Value> kv;
+    std::pair<Key, Value> kv_;
 
    private:
-    NodeColor color;
-    RBTreeNode *parent;
-    RBTreeNode *left;
-    RBTreeNode *right;
+    NodeColor color_;
+    RBTreeNode *parent_;
+    RBTreeNode *left_;
+    RBTreeNode *right_;
   };
 
   class RBTreeIterator {
    public:
-    RBTreeIterator() : object(nullptr) {}
+    RBTreeIterator() : object_(nullptr) {}
 
-    explicit RBTreeIterator(RBTreeNode *ptr) : object(ptr) {}
-    RBTreeIterator(const RBTreeIterator &other) : object(other.object) {}
-    RBTreeIterator(RBTreeIterator &&other) : object(other.object) {
-      other.object = nullptr;
+    explicit RBTreeIterator(RBTreeNode *ptr) : object_(ptr) {}
+    RBTreeIterator(const RBTreeIterator &other) : object_(other.object_) {}
+    RBTreeIterator(RBTreeIterator &&other) : object_(other.object_) {
+      other.object_ = nullptr;
     }
 
     RBTreeIterator &operator=(const RBTreeIterator &other) {
-      object = other.object;
+      object_ = other.object_;
       return *this;
     }
     RBTreeIterator &operator=(RBTreeIterator &&other) {
-      object = other.object;
-      other.object = nullptr;
+      object_ = other.object_;
+      other.object_ = nullptr;
       return *this;
     }
     RBTreeIterator &operator=(RBTreeNode *ptr) {
-      object = ptr;
+      object_ = ptr;
       return *this;
     }
 
     bool operator==(const RBTreeIterator &other) {
-      return object == other.object;
+      return object_ == other.object_;
     }
-    bool operator==(RBTreeNode *ptr) { return object == ptr; }
+    bool operator==(RBTreeNode *ptr) { return object_ == ptr; }
 
-    std::pair<Key, Value> *operator->() { return &(object->kv); }
-    std::pair<Key, Value> &operator*() { return object->kv; }
+    std::pair<Key, Value> *operator->() { return &(object_->kv_); }
+    std::pair<Key, Value> &operator*() { return object_->kv_; }
 
     RBTreeIterator &operator++() {
-      object = getSuccessor(object);
+      object_ = getSuccessor(object_);
       return *this;
     }
     RBTreeIterator operator++(int) {
       RBTreeIterator tmp = *this;
-      object = getSuccessor(object);
+      object_ = getSuccessor(object_);
       return tmp;
     }
 
     RBTreeIterator &operator--() {
-      object = getPredecessor(object);
+      object_ = getPredecessor(object_);
       return *this;
     }
     RBTreeIterator operator--(int) {
       RBTreeIterator tmp = *this;
-      object = getPredecessor(object);
+      object_ = getPredecessor(object_);
       return tmp;
     }
 
    private:
-    RBTreeNode *object;
+    RBTreeNode *object_;
   };
 
  public:
   using iterator = RBTreeIterator;
 
  public:
-  RBTree() : root_(nullptr), size_(0), beginIter(nullptr), endIter(nullptr) {}
+  RBTree() : root_(nullptr), size_(0), beginIter_(nullptr), endIter_(nullptr) {}
   ~RBTree() { destory(root_); }
 
   inline size_t size() { return size_; }
 
   inline bool empty() { return size_ == 0; }
 
-  const RBTreeIterator &begin() { return beginIter; }
-  const RBTreeIterator &end() { return endIter; }
+  const RBTreeIterator &begin() { return beginIter_; }
+  const RBTreeIterator &end() { return endIter_; }
 
   /**
    * @brief Insert {key, value} if key doesn't exist, update the value else
@@ -128,7 +128,7 @@ class RBTree {
    */
   const Value &get(const Key &key, const Value &defaultValue) const {
     RBTreeNode *node = getInternal(root_, key);
-    return node ? node->kv.second : defaultValue;
+    return node ? node->kv_.second : defaultValue;
   }
 
   /**
@@ -174,7 +174,7 @@ class RBTree {
    * @return NodeColor
    */
   inline NodeColor getColorByNode(RBTreeNode *node) const {
-    return node ? node->color : BLACK;
+    return node ? node->color_ : BLACK;
   }
 
   /**
@@ -184,15 +184,15 @@ class RBTree {
    * @param[in] node
    */
   static void leftRotate(RBTreeNode *&node) {
-    RBTreeNode *child = node->right;
-    child->setParent(node->parent);
+    RBTreeNode *child = node->right_;
+    child->setParent(node->parent_);
 
-    node->right = child->left;
-    if (child->left) {
-      child->left->setParent(node);
+    node->right_ = child->left_;
+    if (child->left_) {
+      child->left_->setParent(node);
     }
 
-    child->left = node;
+    child->left_ = node;
     node->setParent(child);
 
     node = child;
@@ -205,15 +205,15 @@ class RBTree {
    * @param[in] node
    */
   static void rightRotate(RBTreeNode *&node) {
-    RBTreeNode *child = node->left;
-    child->setParent(node->parent);
+    RBTreeNode *child = node->left_;
+    child->setParent(node->parent_);
 
-    node->left = child->right;
-    if (child->right) {
-      child->right->setParent(node);
+    node->left_ = child->right_;
+    if (child->right_) {
+      child->right_->setParent(node);
     }
 
-    child->right = node;
+    child->right_ = node;
     node->setParent(child);
 
     node = child;
@@ -226,13 +226,13 @@ class RBTree {
    * @return RBTreeNode*
    */
   static RBTreeNode *getPredecessor(RBTreeNode *node) {
-    if (node->left) {
-      return rightMost(node->left);
+    if (node->left_) {
+      return rightMost(node->left_);
     }
-    while (node->parent && node != node->parent->right) {
-      node = node->parent;
+    while (node->parent_ && node != node->parent_->right_) {
+      node = node->parent_;
     }
-    return node->parent;
+    return node->parent_;
   }
 
   /**
@@ -242,13 +242,13 @@ class RBTree {
    * @return RBTreeNode*
    */
   static RBTreeNode *getSuccessor(RBTreeNode *node) {
-    if (node->right) {
-      return leftMost(node->right);
+    if (node->right_) {
+      return leftMost(node->right_);
     }
-    while (node->parent && node != node->parent->left) {
-      node = node->parent;
+    while (node->parent_ && node != node->parent_->left_) {
+      node = node->parent_;
     }
-    return node->parent;
+    return node->parent_;
   }
 
   /**
@@ -258,7 +258,7 @@ class RBTree {
    * @return RBTreeNode*&
    */
   static RBTreeNode *&leftMost(RBTreeNode *&node) {
-    return node->left ? leftMost(node->left) : node;
+    return node->left_ ? leftMost(node->left_) : node;
   }
 
   /**
@@ -268,7 +268,7 @@ class RBTree {
    * @return RBTreeNode*&
    */
   static RBTreeNode *&rightMost(RBTreeNode *&node) {
-    return node->right ? rightMost(node->right) : node;
+    return node->right_ ? rightMost(node->right_) : node;
   }
 
   /**
@@ -282,28 +282,28 @@ class RBTree {
     if (node == nullptr) {
       node = new RBTreeNode(key, value);
       if (++size_ == 1) {
-        beginIter = node;
+        beginIter_ = node;
       }
       return;
     }
 
-    int compareResult = compareFunc_(key, node->kv.first);
+    int compareResult = compareFunc_(key, node->kv_.first);
     if (compareResult == 0) {
-      node->kv.second = value;
+      node->kv_.second = value;
     } else if (compareResult < 0) {
-      RBTreeNode *&child = node->left;
-      RBTreeNode *&sibling = node->right;
+      RBTreeNode *&child = node->left_;
+      RBTreeNode *&sibling = node->right_;
 
       upsertInternal(child, key, value);
       child->setParent(node);
 
-      if (beginIter == node) {
-        --beginIter;
+      if (beginIter_ == node) {
+        --beginIter_;
       }
 
       if (getColorByNode(child) == RED) {
         if (getColorByNode(sibling) == BLACK) {
-          if (getColorByNode(child->left) == RED) {
+          if (getColorByNode(child->left_) == RED) {
             /*
              * CASE 1
              *   node -->    B
@@ -315,7 +315,7 @@ class RBTree {
             child->setColor(BLACK);
             node->setColor(RED);
             rightRotate(node);
-          } else if (getColorByNode(child->right) == RED) {
+          } else if (getColorByNode(child->right_) == RED) {
             /*
              * CASE 2
              *   node -->    B
@@ -330,7 +330,7 @@ class RBTree {
             rightRotate(node);
           }
         } else {  // getColorByNode(sibling) == RED
-          if (getColorByNode(child->left) == RED) {
+          if (getColorByNode(child->left_) == RED) {
             /*
              * CASE 3
              *   node -->    B
@@ -342,7 +342,7 @@ class RBTree {
             child->setColor(BLACK);
             sibling->setColor(BLACK);
             node->setColor(RED);
-          } else if (getColorByNode(child->right) == RED) {
+          } else if (getColorByNode(child->right_) == RED) {
             /*
              * CASE 4
              *   node -->    B
@@ -359,15 +359,15 @@ class RBTree {
         }
       }
     } else {
-      RBTreeNode *&child = node->right;
-      RBTreeNode *&sibling = node->left;
+      RBTreeNode *&child = node->right_;
+      RBTreeNode *&sibling = node->left_;
 
       upsertInternal(child, key, value);
       child->setParent(node);
 
       if (getColorByNode(child) == RED) {
         if (getColorByNode(sibling) == BLACK) {
-          if (getColorByNode(child->right) == RED) {
+          if (getColorByNode(child->right_) == RED) {
             /*
              * CASE 1
              *     B   <-- node
@@ -379,7 +379,7 @@ class RBTree {
             child->setColor(BLACK);
             node->setColor(RED);
             leftRotate(node);
-          } else if (getColorByNode(child->left) == RED) {
+          } else if (getColorByNode(child->left_) == RED) {
             /*
              * CASE 2
              *     B   <-- node
@@ -394,7 +394,7 @@ class RBTree {
             leftRotate(node);
           }
         } else {  // getColorByNode(sibling) == RED
-          if (getColorByNode(child->right) == RED) {
+          if (getColorByNode(child->right_) == RED) {
             /*
              * CASE 3
              *     B   <-- node
@@ -406,7 +406,7 @@ class RBTree {
             child->setColor(BLACK);
             sibling->setColor(BLACK);
             node->setColor(RED);
-          } else if (getColorByNode(child->left) == RED) {
+          } else if (getColorByNode(child->left_) == RED) {
             /*
              * CASE 4
              *     B   <-- node
@@ -437,14 +437,14 @@ class RBTree {
       return nullptr;
     }
 
-    int compareResult = compareFunc_(key, node->kv.first);
+    int compareResult = compareFunc_(key, node->kv_.first);
     if (compareResult == 0) {
       return node;
     }
     if (compareResult < 0) {
-      return getInternal(node->left, key);
+      return getInternal(node->left_, key);
     }
-    return getInternal(node->right, key);
+    return getInternal(node->right_, key);
   }
 
   /**
@@ -460,16 +460,16 @@ class RBTree {
     }
 
     bool toLeft = true;
-    int compareResult = compareFunc_(key, node->kv.first);
+    int compareResult = compareFunc_(key, node->kv_.first);
     if (compareResult == 0) {
       RBTreeNode *&swapNode =
-          node->left ? rightMost(node->left)
-                     : (node->right ? leftMost(node->right) : node);
-      if (node->left == nullptr && node->right == nullptr) {
+          node->left_ ? rightMost(node->left_)
+                      : (node->right_ ? leftMost(node->right_) : node);
+      if (node->left_ == nullptr && node->right_ == nullptr) {
         // now the node must be leaf node
-        NodeColor color = node->color;
-        if (beginIter == node) {
-          ++beginIter;
+        NodeColor color = node->color_;
+        if (beginIter_ == node) {
+          ++beginIter_;
         }
         delete node;
         node = nullptr;
@@ -477,9 +477,9 @@ class RBTree {
         return color;
       }
 
-      std::swap(node->kv.first, swapNode->kv.first);
-      std::swap(node->kv.second, swapNode->kv.second);
-      if (node->left == nullptr) {
+      std::swap(node->kv_.first, swapNode->kv_.first);
+      std::swap(node->kv_.second, swapNode->kv_.second);
+      if (node->left_ == nullptr) {
         toLeft = false;
       }
     } else if (compareResult > 0) {
@@ -487,8 +487,8 @@ class RBTree {
     }
 
     if (toLeft) {
-      if (removeInternal(node->left, key) == BLACK) {
-        RBTreeNode *&sibling = node->right;
+      if (removeInternal(node->left_, key) == BLACK) {
+        RBTreeNode *&sibling = node->right_;
         if (getColorByNode(node) == BLACK) {
           if (getColorByNode(sibling) == BLACK) {
             /*
@@ -509,12 +509,12 @@ class RBTree {
              *     B   B
              */
             sibling->setColor(BLACK);
-            sibling->left->setColor(RED);
+            sibling->left_->setColor(RED);
             leftRotate(node);
           }
         } else {
-          if (getColorByNode(sibling->left) == BLACK &&
-              getColorByNode(sibling->right) == BLACK) {
+          if (getColorByNode(sibling->left_) == BLACK &&
+              getColorByNode(sibling->right_) == BLACK) {
             /*
              * CASE 3
              *     R   <-- node
@@ -526,7 +526,7 @@ class RBTree {
           }
         }
 
-        if (getColorByNode(sibling->left) == RED) {
+        if (getColorByNode(sibling->left_) == RED) {
           /*
            * CASE 4
            *     ?   <-- node
@@ -536,10 +536,10 @@ class RBTree {
            *     R
            */
           sibling->setColor(RED);
-          sibling->left->setColor(BLACK);
+          sibling->left_->setColor(BLACK);
           rightRotate(sibling);
         }
-        if (getColorByNode(sibling->right) == RED) {
+        if (getColorByNode(sibling->right_) == RED) {
           /*
            * CASE 5
            *     ?   <-- node
@@ -548,15 +548,15 @@ class RBTree {
            *        \
            *         R
            */
-          sibling->setColor(node->color);
+          sibling->setColor(node->color_);
           node->setColor(BLACK);
-          sibling->right->setColor(BLACK);
+          sibling->right_->setColor(BLACK);
           leftRotate(node);
         }
       }
     } else {
-      if (removeInternal(node->right, key) == BLACK) {
-        RBTreeNode *&sibling = node->left;
+      if (removeInternal(node->right_, key) == BLACK) {
+        RBTreeNode *&sibling = node->left_;
         if (getColorByNode(node) == BLACK) {
           if (getColorByNode(sibling) == BLACK) {
             /*
@@ -577,12 +577,12 @@ class RBTree {
              *            B   B
              */
             sibling->setColor(BLACK);
-            sibling->right->setColor(RED);
+            sibling->right_->setColor(RED);
             rightRotate(node);
           }
         } else {
-          if (getColorByNode(sibling->left) == BLACK &&
-              getColorByNode(sibling->right) == BLACK) {
+          if (getColorByNode(sibling->left_) == BLACK &&
+              getColorByNode(sibling->right_) == BLACK) {
             /*
              * CASE 3
              *     node -->   R
@@ -594,7 +594,7 @@ class RBTree {
           }
         }
 
-        if (getColorByNode(sibling->right) == RED) {
+        if (getColorByNode(sibling->right_) == RED) {
           /*
            * CASE 4
            *     node -->   ?
@@ -604,10 +604,10 @@ class RBTree {
            *                R
            */
           sibling->setColor(RED);
-          sibling->right->setColor(BLACK);
+          sibling->right_->setColor(BLACK);
           leftRotate(sibling);
         }
-        if (getColorByNode(sibling->left) == RED) {
+        if (getColorByNode(sibling->left_) == RED) {
           /*
            * CASE 5
            *     node -->   ?
@@ -616,9 +616,9 @@ class RBTree {
            *             /
            *            R
            */
-          sibling->setColor(node->color);
+          sibling->setColor(node->color_);
           node->setColor(BLACK);
-          sibling->left->setColor(BLACK);
+          sibling->left_->setColor(BLACK);
           rightRotate(node);
         }
       }
@@ -636,11 +636,11 @@ class RBTree {
     if (node == nullptr) {
       return;
     }
-    if (node->left) {
-      destory(node->left);
+    if (node->left_) {
+      destory(node->left_);
     }
-    if (node->right) {
-      destory(node->right);
+    if (node->right_) {
+      destory(node->right_);
     }
     delete node;
   }
@@ -662,11 +662,11 @@ class RBTree {
       return;
     }
 
-    printTreeStructure(node->right, depth + 1, '/');
+    printTreeStructure(node->right_, depth + 1, '/');
     std::cout << std::string(depth * 4, ' ') << prefix << "--"
-              << colorToString(node->color) << '(' << node->kv.first << ", "
-              << node->kv.second << ')' << endOfColor() << std::endl;
-    printTreeStructure(node->left, depth + 1, '\\');
+              << colorToString(node->color_) << '(' << node->kv_.first << ", "
+              << node->kv_.second << ')' << endOfColor() << std::endl;
+    printTreeStructure(node->left_, depth + 1, '\\');
   }
   /* Only for debug -- return the number of black nodes to the nil node, -1 for
    * invalid */
@@ -676,12 +676,12 @@ class RBTree {
     }
 
     NodeColor color = getColorByNode(node);
-    if (color == RED && (getColorByNode(node->left) == RED ||
-                         getColorByNode(node->right) == RED)) {
+    if (color == RED && (getColorByNode(node->left_) == RED ||
+                         getColorByNode(node->right_) == RED)) {
       return -1;
     }
-    int left = validateInternal(node->left);
-    int right = validateInternal(node->right);
+    int left = validateInternal(node->left_);
+    int right = validateInternal(node->right_);
     if (left == -1 || right == -1 || left != right) {
       return -1;
     }
@@ -694,6 +694,6 @@ class RBTree {
 
   size_t size_;
 
-  RBTreeIterator beginIter;
-  RBTreeIterator endIter;
+  RBTreeIterator beginIter_;
+  RBTreeIterator endIter_;
 };
