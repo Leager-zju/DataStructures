@@ -14,7 +14,6 @@ struct comp {
 template <class Value, class Compare = comp<Value>>
 class BinomialHeap {
   struct BinomialHeapNode {
-    friend class BinomialHeap;
     BinomialHeapNode()
         : degree_(0), parent_(nullptr), child_(nullptr), sibling_(nullptr) {}
     explicit BinomialHeapNode(const Value& value)
@@ -38,7 +37,6 @@ class BinomialHeap {
     }
     void setSibling(BinomialHeapNode* newSibling) { sibling_ = newSibling; }
 
-   private:
     Value value_;
     unsigned int degree_;
     BinomialHeapNode* parent_;
