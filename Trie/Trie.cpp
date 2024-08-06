@@ -41,10 +41,6 @@ bool PrefixTrie::remove(const std::string& str) {
   return false;
 }
 
-/*********************************************************************
- ****************************** Private ******************************
- *********************************************************************/
-
 void PrefixTrie::insertInternal(TrieNode*& node, const std::string_view& str) {
   if (node == nullptr) {
     node = new TrieNode(str);
@@ -138,10 +134,6 @@ void PrefixTrie::destory(TrieNode* node) {
 
   delete node;
 }
-
-/*********************************************************************
- ******************************* Debug *******************************
- *********************************************************************/
 
 std::vector<std::string> PrefixTrie::toVector() {
   std::vector<std::string> res;
