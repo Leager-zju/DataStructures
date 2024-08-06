@@ -17,7 +17,6 @@ template <class Key, class Value, class Compare = comp<Key>>
 class RBTree {
   enum NodeColor { RED, BLACK, VOID };
   struct RBTreeNode {
-    friend class RBTree;
     explicit RBTreeNode(const Key &k, const Value &v)
         : kv_(k, v),
           color_(RED),
@@ -30,7 +29,6 @@ class RBTree {
 
     std::pair<Key, Value> kv_;
 
-   private:
     NodeColor color_;
     RBTreeNode *parent_;
     RBTreeNode *left_;
